@@ -18,7 +18,7 @@ $app->run_fastQ_brew();
   --dup, remove duplicate reads
   --qf, filter by phred (suggested default=20, min Q score=8 by default)
   --prob, probability that the read contains 0 errors (suggested default=0.5)
-  --lf, filter by read length (suggested default=15)
+  --lf, filter by read length (suggested default=25)
   --truseq, removes truseq adapters from reads
   --trim_l, trim reads starting at left end
   --trim_r, trim reads starting at left end
