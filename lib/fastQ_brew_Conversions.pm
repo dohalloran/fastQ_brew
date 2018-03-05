@@ -11,7 +11,7 @@
 
 =head1 NAME
 
-fastQ_brew_Conversions - file reformatting for fastQ_brew
+fastQ_brew_Conversions - file reformatting and demultiplex check for fastQ_brew
 
 =head2 SYNOPSIS
 
@@ -198,8 +198,9 @@ sub _dna_rna {
 ##################################
 
 sub _de_plex {
-    my $in_file  = shift;
-    my $in_file2 = shift;
+    my (@fileArray) = @_;
+    my $in_file  = $fileArray[0];
+    my $in_file2 = $fileArray[1];
     print BOLD CYAN, "\n\nChecking fastQ files for proper demultiplexing...",
       RESET;
     my $temp;
