@@ -102,7 +102,7 @@ has 'o'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
 has 'lib'      	=> ( is => 'rw', isa => 'Str',  default  => "sanger" );
 has 'dup'      	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'qf'       	=> ( is => 'rw', isa => 'Num',  default  => 0 );
-has 'prob'      => ( is => 'rw', isa => 'Int',  default  => 1 );
+has 'prob'      => ( is => 'rw', isa => 'Num',  default  => 1 );
 has 'lf'       	=> ( is => 'rw', isa => 'Int',  default  => 0 );
 has 'truseq'   	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'trim_l'   	=> ( is => 'rw', isa => 'Int',  default  => 0 );
