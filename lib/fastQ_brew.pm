@@ -368,7 +368,7 @@ sub run_fastQ_brew {
         my $temp_prob;
 
         # get the read phred score
-        if ( $self->{qf} ne 0 &&  $self->{prob} ne 0 ) {
+        if ( $self->{qf} ne 0 || $self->{prob} ne 0 ) {
             $temp_prob = _prob_calc( $right_qual, $self->{lib}, $self->{qf}, $self->{prob} );
         }
         else {
