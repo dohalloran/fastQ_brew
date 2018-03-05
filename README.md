@@ -32,10 +32,10 @@ or
  ```bash 
   #brew_driver.pl is a driver script within the lib folder 
   #standard use
-  perl brew_driver.pl --i=<input_file> --o=<output_file> --qf=20 --prob=0.5 --lf=25
+  perl brew_driver.pl -i <input_file> -o <output_file> --qf 20 --prob 0.5 --lf 25
   
   #check that files were demultiplxed correctly
-  perl brew_driverl.pl --i=<input_file1> --x=<input_file2> --o=<output_file> --plex
+  perl brew_driverl.pl -i <input_file1> -x <input_file2> -o <output_file> --plex
   
   #see below for command flags 
 ```
@@ -48,17 +48,17 @@ or
 # ii)the min Phred Q score is not above 8
 # iii)the probability that the read contains 0 errors (see --prob, suggested default=0.5)
 #only reads with an average Q score above --qf will be kept
-        --qf=20
+        --qf 20
 #the probability that the read contains 0 errors 
-        --prob=0.5
+        --prob 0.5
 #filter by read length - reads below this length will be removed       
-        --lf=25
+        --lf 25
 #remove x bases from left end of every read 
-        --trim_l=5
+        --trim_l 5
 #remove x bases from right end of every read
-        --trim_r=3
+        --trim_r 3
 #remove user specified adapter (permits 1 mismatch) from both ends
-        --adpt=AATGATACGGCGACCACCGAGATCTACACT
+        --adpt AATGATACGGCGACCACCGAGATCTACACT
 #remove standard truseq adapters (permits 1 mismatch) from both ends (very slow!)
         --truseq
 #remove duplicate reads 
@@ -71,9 +71,9 @@ or
  ```perl   
 #check that 2 FASTQ files were demultiplexed correctly 
         --plex
-        -i=<input_file1>
-        -x=<input_file2>
-        -o=<output_file>
+        -i <input_file1>
+        -x <input_file2>
+        -o <output_file>
 #convert FASTQ file to FASTA format file
         --fasta
 #convert the DNA for each read to RNA 
@@ -85,11 +85,11 @@ or
 ### Odds and Ends
  ```perl   
 #input FASTQ file (required) 
-        --i=reads.fastq
+        --i reads.fastq
 #output FASTQ file (required) 
-        --o=filtered.fq
+        --o filtered.fq
 #library type i.e. sanger (default) or illumina 
-        --lib=sanger
+        --lib sanger
 #print flag options to stdout
         --help  
 ```
