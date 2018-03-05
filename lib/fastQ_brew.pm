@@ -97,7 +97,7 @@ our $VERSION = '2.0';
 
 has 'i'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
 has 'x'         => ( is => 'rw', isa => 'Str',  required => 0 );
-has 'plex'      => ( is => 'rw', isa => 'Bool', required => 0 );
+has 'plex'      => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'o'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
 has 'lib'      	=> ( is => 'rw', isa => 'Str',  default  => "sanger" );
 has 'dup'      	=> ( is => 'rw', isa => 'Bool', default  => 0 );
@@ -255,7 +255,7 @@ sub run_fastQ_brew {
     unless ( $self->{dna_rna} eq 0 ) {
         _dna_rna( $self->{i} );
     }
-    unless ( $self->{plex} ne 1 ) {
+    unless ( $self->{plex} eq 0 ) {
         _de_plex( $self->{i}, $self->{x} );
     }
 
