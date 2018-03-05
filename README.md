@@ -43,9 +43,9 @@ or
 ## Command Line Arguments
 ### Filtering Options
  ```perl   
-#A FASTQ read is removed if the following criteria are not both met for a given read: 
+#A FASTQ read is removed if the following criteria are not met for a given read: 
 # i) average read Phred Quality [2-3] is not above the user supplied threshold (see --qf, suggested default=20)
-# ii)the min Phred Q score is not above 8
+# ii)the min Phred Q score for any given nucleotide is not above 8
 # iii)the probability that the read contains 0 errors (see --prob, suggested default=0.5)
 #only reads with an average Q score above --qf will be kept
         --qf 20
@@ -70,6 +70,7 @@ or
 ### File Conversions and de-multiplex check
  ```perl   
 #check that 2 FASTQ files were demultiplexed correctly 
+#fastQ_brew outputs the barcodes for each file and compares (union and intersection) between two files 
         --plex
         -i <input_file1>
         -x <input_file2>
