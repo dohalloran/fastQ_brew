@@ -387,7 +387,7 @@ my %illumina_prob = (
 
  Title   :  prob_calc
  Usage   :  $prob = prob_calc( $read, $lib, $cuttoff, $prob_max );
- Function:  determines whether phred min is greater than 8, and average is above $cutoff and E < 1 i.e. probable # of errors is 0
+ Function:  determines whether phred min is greater than 8, and average is above $cutoff and E < 1 i.e. probable number of errors is 0
  Returns :  1 or 0 
  
 =cut
