@@ -93,10 +93,6 @@ or
 #print flag options to stdout
         --help  
 ```
-### FASTQ Distribution
-
-![fastQ brew histogram](https://user-images.githubusercontent.com/8477977/30244895-1e35c1bc-9596-11e7-9de8-b7c3c074f3e9.png)
-![fastQ_brew dist](https://user-images.githubusercontent.com/8477977/30244876-bdcf8ce0-9595-11e7-9f0a-cecf82622ad3.png)
 
 ### References
 1. Cock PJ, Fields CJ, Goto N, Heuer ML, Rice PM. The Sanger FASTQ file format for sequences with quality scores, and the Solexa/Illumina FASTQ variants. Nucleic Acids Res. 2010;38(6):1767–71
