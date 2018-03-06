@@ -8,9 +8,7 @@
 - [x] `Filter reads by length `
 - [x] `Filter reads by quality`
 - [x] `Trim reads`
-- [x] `Removes duplicate reads`
 - [x] `Removes standard Truseq adapters`
-- [x] `Removes user supplied adapter`
 - [x] `Performs various file conversions` 
 
 ![fastQ_brew LOGO](https://cloud.githubusercontent.com/assets/8477977/22077145/f29a177e-dd80-11e6-86a6-a211e8e1e103.jpg)
@@ -32,7 +30,7 @@ or
  ```bash 
   #brew_driver.pl is a driver script within the lib folder 
   #standard use
-  perl brew_driver.pl -i <input_file> -o <output_file> --qf 20 --prob 0.5 --lf 25
+  perl brew_driver.pl -i <input_file> -o <output_file> --qf 20 --lf 25 --truseq
   
   #check that files were demultiplxed correctly
   perl brew_driverl.pl -i <input_file1> -x <input_file2> -o <output_file> --plex
@@ -46,25 +44,17 @@ or
 #A FASTQ read is removed if the following criteria are not met for a given read: 
 # i) average read Phred Quality [2-3] is not above the user supplied threshold (see --qf, suggested default=20)
 # ii)the min Phred Q score for any given nucleotide is not above 8
-# iii)the probability that the read contains 0 errors (see --prob, suggested default=0.5)
+# iii)the probability that the read contains 0 errors i.e. E < 1 (default=0.5)
 #only reads with an average Q score above --qf will be kept
         --qf 20
-#the probability that the read contains 0 errors 
-        --prob 0.5
 #filter by read length - reads below this length will be removed       
         --lf 25
 #remove x bases from left end of every read 
         --trim_l 5
 #remove x bases from right end of every read
         --trim_r 3
-#remove user specified adapter (permits 1 mismatch) from both ends
-        --adpt AATGATACGGCGACCACCGAGATCTACACT
 #remove standard truseq adapters (permits 1 mismatch) from both ends (very slow!)
         --truseq
-#remove duplicate reads 
-        --dup
-#remove reads that contain non designated bases e.g. N or [^ATGC] 
-        --no_n
 ```
 
 ### File Conversions and de-multiplex check
