@@ -46,6 +46,7 @@ The rest of the documentation details each of the object methods.
 package fastQ_brew_Utilities;
 
 use Moose;
+use namespace::autoclean;
 use Modern::Perl;
 use base 'Exporter';
 use Statistics::Basic qw(:all);
@@ -396,7 +397,6 @@ sub _prob_calc{
     my $seq      = $_[0];
     my $lib      = $_[1];
     my $cuttoff  = $_[2];
-    my $prob_max = $_[3];
     my $score;
     my $score_prob;
     my @phred_array;
@@ -420,7 +420,7 @@ sub _prob_calc{
         my $min_phred      = min @phred_array;
         my $mean_prob      = mean(@prob_array);
 
-       if ( ($mean_phred < $cuttoff) && ($min_phred > 8) && ($mean_prob < $prob_max)) {
+       if ( ($mean_phred < $cuttoff) && ($min_phred > 8) && ($mean_prob < 0.5 )) {
        	    return 0;
         }
         else {
