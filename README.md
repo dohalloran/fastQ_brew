@@ -3,7 +3,7 @@
 [![GitHub license](https://img.shields.io/badge/license-GPL_2.0-orange.svg)](https://raw.githubusercontent.com/dohalloran/fastQ_brew/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/dohalloran/fastQ_brew.svg)](https://github.com/dohalloran/fastQ_brew/issues)
 
-- [x] `Pre-processing of FASTQ [1] reads`
+- [x] `Pre-processing of FASTQ reads`
 - [x] `Check that files were demultiplxed correctly`
 - [x] `Filter reads by length `
 - [x] `Filter reads by quality`
@@ -41,7 +41,7 @@ or
 ## Command Line Arguments
 ### Filtering Options
  ```perl   
-#A FASTQ read is removed if the following criteria are not met for a given read: 
+#A FASTQ read [1] is removed if the following criteria are not met for a given read: 
 # i) average read Phred Quality [2-3] is not above the user supplied threshold (see --qf, suggested default=20)
 # ii)the min Phred Q score for any given nucleotide is not above 8
 # iii)the probability that the read contains 0 errors i.e. E < 1 (default=0.5)
