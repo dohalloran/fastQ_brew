@@ -50,6 +50,7 @@ package fastQ_brew;
 
 use Moose;
 use Modern::Perl;
+use namespace::autoclean;
 with 'MooseX::Getopt', 'MooseX::Getopt::Usage::Role::Man';
 use fastQ_brew_Utilities;
 use fastQ_brew_Conversions;
@@ -77,18 +78,14 @@ our $VERSION = '2.0';
   --plex, checks that two FASTQ files were demultiplexed correctly
   --o, output file (required)
   --lib, library type  (default is sanger)       
-  --dup, remove duplicate reads
-  --qf, filter by phred (suggested default=20, min Q score=8 by default)
-  --prob, probability that the read contains 0 errors (suggested default=0.5)
+  --qf, filter by phred (suggested default=20, min Q score=8 by default, and probability that the read contains 0 errors (default=0.5)
   --lf, filter by read length (suggested default =25)
   --trim_l, trim reads starting at left end
   --trim_r, trim reads starting at left end
-  --truseq, removes truseq adapters from reads
-  --adpt, remove a user supplied adapter     
+  --truseq, removes truseq adapters from reads   
   --fasta, convert to fastA format 
   --dna_rna, convert reads to RNA
   --rev_comp, reverse complement reads
-  --no_n, remove non-designated bases from reads
   --help, Print this help
 
 =cut
@@ -100,18 +97,14 @@ has 'x'         => ( is => 'rw', isa => 'Str',  required => 0 );
 has 'plex'      => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'o'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
 has 'lib'      	=> ( is => 'rw', isa => 'Str',  default  => "sanger" );
-has 'dup'      	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'qf'       	=> ( is => 'rw', isa => 'Num',  default  => 0 );
-has 'prob'      => ( is => 'rw', isa => 'Num',  default  => 1 );
 has 'lf'       	=> ( is => 'rw', isa => 'Int',  default  => 0 );
 has 'truseq'   	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'trim_l'   	=> ( is => 'rw', isa => 'Int',  default  => 0 );
 has 'trim_r'   	=> ( is => 'rw', isa => 'Int',  default  => 0 );
-has 'adpt'     	=> ( is => 'rw', isa => 'Str',  default  => 0 );
 has 'fasta'    	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'dna_rna'  	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'rev_comp' 	=> ( is => 'rw', isa => 'Bool', default  => 0 );
-has 'no_n'     	=> ( is => 'rw', isa => 'Bool', default  => 0 );
 has 'start'    	=> ( is => 'ro', isa => 'Int',  default  => time );
 has help       	=> (
     is            	=> 'ro',
@@ -224,17 +217,7 @@ my %truseq_seqs = (
 sub run_fastQ_brew {
     my ( $self, %arg ) = @_;
 
-    my ( $temp, @temp, $right_seq, $right_qual, $right_seqA, $right_qualA,
-        @number_matchesR );
-    my ( $left_seq, $left_qual, $left_seqA, $left_qualA, $count,
-        @number_matchesL );
-
-    # add user defined adapters
-    unless ( $self->{adpt} eq 0 ) {
-        $self->{adpt} =~ s/[^ACGTagct]//g;
-        my $new_value = uc $self->{adpt};
-        $truseq_seqs{25} = $new_value;
-    }
+    my ( $temp, @temp, $count, @number_matchesR, @number_matchesL );
 
     # log data on sys and infile
     my $inSize = -s $self->{i};
@@ -268,8 +251,6 @@ sub run_fastQ_brew {
     open my $fh, '<', $self->{i}
       or die "Cannot open $self->{in_file}: $!";
 
-    my %seen;
-    my $unique;
     while (<$fh>) {
         $count++;
         chomp( $temp[0] = $_ );
@@ -277,99 +258,60 @@ sub run_fastQ_brew {
         chomp( $temp[2] = <$fh> );
         chomp( $temp[3] = <$fh> );
 
-        # see if read is unique
-        if ( $self->{dup} ne 0 && $seen{ $temp[1] }++ ) {
-            $unique = 0;
-        }
-        else {
-            $unique = 1;
-        }
-
         my $key;
 
-        ##  start by considering right end adapters
-        if ( $self->{truseq} ne 0 || $self->{adpt} ne 0 ) {
+        ##  start by considering adapter removal
+        if ( $self->{truseq} ne 0 ) {
             @number_matchesR = ();
+            @number_matchesL = ();
             foreach $key ( sort { $a <=> $b } keys %truseq_seqs ) {
                 my $hammingR = substr $temp[1], -length $truseq_seqs{$key},
                   length $truseq_seqs{$key};
                 push @number_matchesR,
                   distance( $hammingR, $truseq_seqs{$key} );
+                my $hammingL = substr $temp[1], 0, length $truseq_seqs{$key};
+                push @number_matchesL,
+                  distance( $hammingL, $truseq_seqs{$key} );
             }
 
             if (   any { $_ == 0 } @number_matchesR
                 or any { $_ == 1 } @number_matchesR )
             {
                 my $index = first_index { $_ < 2 } @number_matchesR;
-                $right_seqA  = substr $temp[1], 0, -length $truseq_seqs{$index};
-                $right_qualA = substr $temp[3], 0, -length $truseq_seqs{$index};
+                $temp[1]  = substr $temp[1], 0, -length $truseq_seqs{$index};
+                $temp[3] = substr $temp[3], 0, -length $truseq_seqs{$index};
             }
-            else {
-                $right_seqA  = $temp[1];
-                $right_qualA = $temp[3];
-            }
-        }
-        else {
-            $right_seqA  = $temp[1];
-            $right_qualA = $temp[3];
-        }
-
-        ##  left end adapters
-        if ( $self->{truseq} ne 0 || $self->{adpt} ne 0 ) {
-            @number_matchesL = ();
-            foreach $key ( sort { $a <=> $b } keys %truseq_seqs ) {
-                my $hammingL = substr $temp[1], 0, length $truseq_seqs{$key};
-                push @number_matchesL,
-                  distance( $hammingL, $truseq_seqs{$key} );
-            }
-
             if (   any { $_ == 0 } @number_matchesL
                 or any { $_ == 1 } @number_matchesL )
             {
                 my $index = first_index { $_ < 2 } @number_matchesL;
-                $left_seqA = substr $right_seqA, length $truseq_seqs{$index},
-                  length $right_seqA;
-                $left_qualA = substr $right_qualA, length $truseq_seqs{$index},
-                  length $right_qualA;
+                $temp[1] = substr $temp[1], length $truseq_seqs{$index},
+                  length $temp[1];
+                $temp[3] = substr $temp[3], length $truseq_seqs{$index},
+                  length $temp[3];
             }
-            else {
-                $left_seqA  = $right_seqA;
-                $left_qualA = $right_qualA;
-            }
-        }
-        else {
-            $left_seqA  = $right_seqA;
-            $left_qualA = $right_qualA;
         }
 
         # if trim_l option not equal to N, then trim
         if ( $self->{trim_l} ne 0 ) {
-            $left_seq = substr $right_seqA, $self->{trim_l}, length $right_seqA;
-            $left_qual = substr $right_qualA, $self->{trim_l},
-              length $right_qualA;
+            $temp[1] = substr $temp[1], $self->{trim_l}, length $temp[1];
+            $temp[3] = substr $temp[3], $self->{trim_l},
+              length $temp[3];
 
-        }
-        elsif ( $self->{trim_l} eq 0 ) {
-            $left_seq  = $left_seqA;
-            $left_qual = $left_qualA;
         }
 
         # if trim_r option not equal to N, then trim
         if ( $self->{trim_r} ne 0 ) {
-            $right_seq  = substr $left_seq,  0, -$self->{trim_r};
-            $right_qual = substr $left_qual, 0, -$self->{trim_r};
+            $temp[1]  = substr $temp[1],  0, -$self->{trim_r};
+            $temp[3] = substr $temp[3], 0, -$self->{trim_r};
 
-        }
-        elsif ( $self->{trim_r} eq 0 ) {
-            $right_seq  = $left_seq;
-            $right_qual = $left_qual;
         }
 
         my $temp_prob;
 
         # get the read phred score
-        if ( $self->{qf} ne 0 || $self->{prob} ne 0 ) {
-            $temp_prob = _prob_calc( $right_qual, $self->{lib}, $self->{qf}, $self->{prob} );
+        if ( $self->{qf} ne 0 ) {
+            $temp_prob = _prob_calc( $temp[3], $self->{lib}, $self->{qf} );
         }
         else {
             $temp_prob = 1;
@@ -378,20 +320,16 @@ sub run_fastQ_brew {
         # conditionals for length, quality, de-dupe, and removing reads with N's
         if (
             (
-                   ( length $right_seq > $self->{lf} && $self->{lf} ne 0 )
+                   ( length $temp[1] > $self->{lf} && $self->{lf} ne 0 )
                 || ( $self->{lf} eq 0 )
             )
             && $temp_prob == 1
-            && (   ( $unique eq 1 && $self->{dup} ne 0 )
-                || ( $self->{dup} eq 0 ) )
-            && (   ( $right_seq !~ m/N/i && $self->{no_n} ne 0 )
-                || ( $self->{no_n} eq 0 ) )
           )
         {
             print $fh_out "$temp[0]\n";
-            print $fh_out "$right_seq\n";
+            print $fh_out "$temp[1]\n";
             print $fh_out "$temp[2]\n";
-            print $fh_out "$right_qual\n";
+            print $fh_out "$temp[3]\n";
         }
 
     }
