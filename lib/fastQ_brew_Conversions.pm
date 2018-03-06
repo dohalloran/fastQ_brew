@@ -43,6 +43,7 @@ The rest of the documentation details each of the object methods.
 package fastQ_brew_Conversions;
 
 use Moose;
+use namespace::autoclean;
 use Modern::Perl;
 use List::Compare;
 use base 'Exporter';
