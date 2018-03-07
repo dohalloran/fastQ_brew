@@ -200,8 +200,8 @@ sub _dna_rna {
 
 sub _de_plex {
     my (@fileArray) = @_;
-    my $in_file  = $fileArray[0];
-    my $in_file2 = $fileArray[1];
+    my $in_file     = $fileArray[0];
+    my $in_file2    = $fileArray[1];
     print BOLD CYAN, "\n\nChecking fastQ files for proper demultiplexing...",
       RESET;
     my $temp;
@@ -225,16 +225,38 @@ sub _de_plex {
             push( @tagsArr2, $1 ) unless grep { $_ eq $1 } @tagsArr2;
         }
     }
-    print BOLD CYAN, "\n\nList of tags from file1: ". "@tagsArr\n",  RESET;
-    print BOLD CYAN, "\n\nList of tags from file2: ". "@tagsArr2\n", RESET;
+
+    if ( scalar @tagsArr == 0 ) {
+        print BOLD CYAN, "\n\nNo tags found from file1\n", RESET;
+    }
+    else {
+        print BOLD CYAN, "\n\nList of tags from file1: " . "@tagsArr\n", RESET;
+    }
+
+    if ( scalar @tagsArr2 == 0 ) {
+        print BOLD CYAN, "\nNo tags found from file2\n", RESET;
+    }
+    else {
+        print BOLD CYAN, "\n\nList of tags from file2: " . "@tagsArr2\n", RESET;
+    }
 
     my $lc = List::Compare->new( \@tagsArr, \@tagsArr2 );
 
     my @intersection = $lc->get_intersection;
     my @union        = $lc->get_union;
 
-    print BOLD CYAN, "\nIntersection between file1 and file2: " . "@intersection\n", RESET;
-    print BOLD CYAN, "\nUnion between file1 and file2: " . "@union\n", RESET;
+    if ( scalar @intersection == 0 ) {
+        print BOLD CYAN, "\nNo intersection found between files\n", RESET;
+    }
+    else {
+        print BOLD CYAN,
+          "\nIntersection between file1 and file2: " . "@intersection\n", RESET;
+    }
+
+    if ( scalar @union != 0 ) {
+        print BOLD CYAN, "\nUnion between file1 and file2: " . "@union\n",
+          RESET;
+    }
 
     close $fh;
     close $fh2;
