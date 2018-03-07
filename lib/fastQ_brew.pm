@@ -49,17 +49,15 @@ The rest of the documentation details each method
 package fastQ_brew;
 
 use Moose;
-use Modern::Perl;
-use namespace::autoclean;
 with 'MooseX::Getopt', 'MooseX::Getopt::Usage::Role::Man';
+use Modern::Perl;
 use fastQ_brew_Utilities;
 use fastQ_brew_Conversions;
 use File::Copy qw(copy);
 use Text::LevenshteinXS qw(distance);
 use if ( $^O eq 'MSWin32' ), 'Win32::Console::ANSI';
 use Term::ANSIColor qw(:constants);
-use List::MoreUtils qw(first_index);
-use List::MoreUtils qw{any};
+use List::MoreUtils qw(any first_index);
 use Sys::Hostname;
 use POSIX qw/floor/;
 use autodie;
