@@ -19,25 +19,26 @@
 or 
 `git clone https://github.com/dohalloran/fastQ_brew.git`
 2. The extracted dir will be called fastQ_brew  
-  `cd fastQ_brew`   
-  `perl Makefile.PL`  
-  `make`  
-  `make test`  
-  `make install`  
-
-## Usage 
-### Type the following to run:  
- ```bash 
-  #brew_driver.pl is a driver script within the lib folder 
-  #standard use
-  perl brew_driver.pl -i <input_file> -o <output_file> --qf 20 --lf 25 --truseq
-  
-  #check that files were demultiplxed correctly
-  perl brew_driverl.pl -i <input_file1> -x <input_file2> -o <output_file> --plex
-  
-  #see below for command flags 
+```cmd  
+cd fastQ_brew   
+perl Makefile.PL  
+make  
+make test  
+make install  
 ```
 
+## Usage 
+### To run:  
+```perl
+use fastQ_brew;
+use Moose;
+use Modern::Perl;
+use autodie;
+
+my $app = fastQ_brew->new_with_options();
+$app->run_fastQ_brew(); 
+#see below for command flags
+``` 
 ## Command Line Arguments
 ### Filtering Options
  ```perl   
