@@ -1,7 +1,6 @@
 Changes
 ignore.txt
 xt/boilerplate.t
-lib/brew_driver.pl
 lib/fastQ_brew.pm
 lib/fastQ_brew_Utilities.pm
 lib/fastQ_brew_Conversions.pm
