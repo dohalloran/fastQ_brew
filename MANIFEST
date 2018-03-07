@@ -7,7 +7,6 @@ lib/fastQ_brew_Conversions.pm
 LICENSE
 Makefile.PL
 MANIFEST			
-README
 README.md
 META.json
 sample_input/sample_sanger.fastq
