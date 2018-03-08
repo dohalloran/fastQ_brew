@@ -76,7 +76,7 @@ our $VERSION = '2.0';
   --plex, checks that two FASTQ files were demultiplexed correctly
   --o, output file (required)
   --lib, library type  (default is sanger)       
-  --qf, filter by phred (suggested default=20, min Q score=8 by default, and probability that the read contains 0 errors (default=0.5)
+  --qf, min. probability for a read to contain 0 errors: suggested p>=50% (must be 1-100)
   --lf, filter by read length (suggested default =25)
   --trim_l, trim reads starting at left end
   --trim_r, trim reads starting at left end
@@ -307,7 +307,7 @@ sub run_fastQ_brew {
 
         my $temp_prob;
 
-        # get the read phred score
+        # get the read error probability score
         if ( $self->{qf} ne 0 ) {
             $temp_prob = _prob_calc( $temp[3], $self->{lib}, $self->{qf} );
         }
@@ -315,7 +315,7 @@ sub run_fastQ_brew {
             $temp_prob = 1;
         }
 
-        # conditionals for length, quality, de-dupe, and removing reads with N's
+        # conditionals for length
         if (
             (
                    ( length $temp[1] > $self->{lf} && $self->{lf} ne 0 )
