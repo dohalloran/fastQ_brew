@@ -15,9 +15,12 @@ fastQ_brew_Conversions - file reformatting and demultiplex check for fastQ_brew
 
 =head2 SYNOPSIS
 
-  use Moose;
-  use Modern::Perl;
-  use base 'Exporter';
+  use Moose
+  use Modern::Perl
+  use List::Compare
+  use base 'Exporter'
+  use Term::ANSIColor qw(:constants)
+  use autodie
 
 =head2 DESCRIPTION
 
@@ -43,7 +46,6 @@ The rest of the documentation details each of the object methods.
 package fastQ_brew_Conversions;
 
 use Moose;
-use namespace::autoclean;
 use Modern::Perl;
 use List::Compare;
 use base 'Exporter';
