@@ -4,7 +4,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/dohalloran/fastQ_brew.svg)](https://github.com/dohalloran/fastQ_brew/issues)
 
 - [x] `Pre-processing of FASTQ reads`
-- [x] `Check that files were demultiplxed correctly`
+- [x] `Check that files were demultiplexed correctly`
 - [x] `Filter reads by length `
 - [x] `Filter reads by quality`
 - [x] `Trim reads`
@@ -42,12 +42,8 @@ $app->run_fastQ_brew();
 ## Command Line Arguments
 ### Filtering Options
  ```perl   
-#A FASTQ read [1] is removed if the following criteria are not met for a given read: 
-# i) average read Phred Quality [2-3] is not above the user supplied threshold (see --qf, suggested default=20)
-# ii)the min Phred Q score for any given nucleotide is not above 8
-# iii)the probability that the read contains 0 errors i.e. E < 1 (default=0.5)
-#only reads with an average Q score above --qf will be kept
-        --qf 20
+#set the minimum probability for a fastQ [1] read to contain 0 errors: suggested p>=50% (must be 1-100)
+        --qf 30
 #filter by read length - reads below this length will be removed       
         --lf 25
 #remove x bases from left end of every read 
