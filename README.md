@@ -45,7 +45,7 @@ $app->run_fastQ_brew();
 #set the minimum probability that a fastQ [1] read will contain errors: suggested p<=50% (lower is better, must be 1-100)
         --qf 30
 #filter by read length - reads below this length will be removed       
-        --lf 25
+        --lf 35
 #remove x bases from left end of every read 
         --trim_l 5
 #remove x bases from right end of every read
