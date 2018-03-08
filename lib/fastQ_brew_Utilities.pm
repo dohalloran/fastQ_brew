@@ -18,8 +18,7 @@ fastQ_brew_Utilities - utilities for fastQ_brew
   use Moose;
   use Modern::Perl;
   use base 'Exporter';
-  use Statistics::Basic qw(:all);
-  use List::Util qw(min);
+  use List::Util qw(sum);
   use autodie;
 
 =head2 DESCRIPTION
@@ -46,179 +45,14 @@ The rest of the documentation details each of the object methods.
 package fastQ_brew_Utilities;
 
 use Moose;
-use namespace::autoclean;
 use Modern::Perl;
 use base 'Exporter';
-use Statistics::Basic qw(:all);
-use List::Util qw(min);
+use List::Util qw(sum);
 use autodie;
 
 our @EXPORT = qw/ _prob_calc /;
 
-# hashes containing phred
-my %sanger_phred = (
-    "\!"   => 0,
-    "\“"   => 1,
-    "\#"   => 2,
-    "\$"   => 3,
-    "\%"   => 4,
-    "\&"   => 5,
-    "\'"   => 6,
-    "\("   => 7,
-    "\)"   => 8,
-    "\*"   => 9,
-    "\+"   => 10,
-    "\,"   => 11,
-    "\-"   => 12,
-    "\."   => 13,
-    "\/"   => 14,
-    "0"    => 15,
-    "1"    => 16,
-    "2"    => 17,
-    "3"    => 18,
-    "4"    => 19,
-    "5"    => 20,
-    "6"    => 21,
-    "7"    => 22,
-    "8"    => 23,
-    "9"    => 24,
-    "\:"   => 25,
-    ";"    => 26,
-    "\<"   => 27,
-    "\="   => 28,
-    "\>"   => 29,
-    "\?"   => 30,
-    "\@"   => 31,
-    "A"    => 32,
-    "B"    => 33,
-    "C"    => 34,
-    "D"    => 35,
-    "E"    => 36,
-    "F"    => 37,
-    "G"    => 38,
-    "H"    => 39,
-    "I"    => 40,
-    "J"    => 41,
-    "K"    => 42,
-    "L"    => 43,
-    "M"    => 44,
-    "N"    => 45,
-    "O"    => 46,
-    "P"    => 47,
-    "Q"    => 48,
-    "R"    => 49,
-    "S"    => 50,
-    "T"    => 51,
-    "U"    => 52,
-    "V"    => 53,
-    "W"    => 54,
-    "X"    => 55,
-    "Y"    => 56,
-    "Z"    => 57,
-    "\["   => 58,
-    "\\"   => 59,
-    "\]"   => 60,
-    "\^"   => 61,
-    "\_"   => 62,
-    "\`"   => 63,
-    "a"    => 64,
-    "b"    => 65,
-    "c"    => 66,
-    "d"    => 67,
-    "e"    => 68,
-    "f"    => 69,
-    "g"    => 70,
-    "h"    => 71,
-    "i"    => 72,
-    "j"    => 73,
-    "k"    => 74,
-    "l"    => 75,
-    "m"    => 76,
-    "n"    => 77,
-    "o"    => 78,
-    "p"    => 79,
-    "q"    => 80,
-    "r"    => 81,
-    "s"    => 82,
-    "t"    => 83,
-    "u"    => 84,
-    "v"    => 85,
-    "w"    => 86,
-    "x"    => 87,
-    "y"    => 88,
-    "z"    => 89,
-    "\{"   => 90,
-    "\|"   => 91,
-    "\}"   => 92,
-    "\~"   => 93
-);
-
-my %illumina_phred = (
-    "@"  => 0,
-    "A"  => 1,
-    "B"  => 2,
-    "C"  => 3,
-    "D"  => 4,
-    "E"  => 5,
-    "F"  => 6,
-    "G"  => 7,
-    "H"  => 8,
-    "I"  => 9,
-    "J"  => 10,
-    "K"  => 11,
-    "L"  => 12,
-    "M"  => 13,
-    "N"  => 14,
-    "O"  => 15,
-    "P"  => 16,
-    "Q"  => 17,
-    "R"  => 18,
-    "S"  => 19,
-    "T"  => 20,
-    "U"  => 21,
-    "V"  => 22,
-    "W"  => 23,
-    "X"  => 24,
-    "Y"  => 25,
-    "Z"  => 26,
-    "["  => 27,
-    "\\" => 28,
-    "]"  => 29,
-    "\^" => 30,
-    "\_" => 31,
-    "\`" => 32,
-    "a"  => 33,
-    "b"  => 34,
-    "c"  => 35,
-    "d"  => 36,
-    "e"  => 37,
-    "f"  => 38,
-    "g"  => 39,
-    "h"  => 40,
-    "i"  => 41,
-    "j"  => 42,
-    "k"  => 43,
-    "l"  => 44,
-    "m"  => 45,
-    "n"  => 46,
-    "o"  => 47,
-    "p"  => 48,
-    "q"  => 49,
-    "r"  => 50,
-    "s"  => 51,
-    "t"  => 52,
-    "u"  => 53,
-    "v"  => 54,
-    "w"  => 55,
-    "x"  => 56,
-    "y"  => 57,
-    "z"  => 58,
-    "{"  => 59,
-    "|"  => 60,
-    "}"  => 61,
-    "~"  => 62
-);
-
+# hashes containing Error probs
 my %sanger_prob = (
     "\!"   => 1.000000000000000,
     "\“"   => 0.794328234700000,
@@ -387,8 +221,8 @@ my %illumina_prob = (
 =head1 prob_calc
 
  Title   :  prob_calc
- Usage   :  $prob = prob_calc( $read, $lib, $cuttoff, $prob_max );
- Function:  determines whether phred min is greater than 8, and average is above $cutoff and E < 1 i.e. probable number of errors is 0
+ Usage   :  $prob = prob_calc( $read, $lib, $cuttoff );
+ Function:  dertmines error probability for each read
  Returns :  1 or 0 
  
 =cut
@@ -396,31 +230,23 @@ my %illumina_prob = (
 sub _prob_calc{
     my $seq      = $_[0];
     my $lib      = $_[1];
-    my $cuttoff  = $_[2];
-    my $score;
+    my $cuttoff  = $_[2]/100;
     my $score_prob;
-    my @phred_array;
     my @prob_array;
 
         foreach my $i ( split //, $seq ) {
             if ( $lib eq "sanger" ) {
-            	push @phred_array, $sanger_phred{$i};
                 push @prob_array, $sanger_prob{$i};
-                $score += $sanger_phred{$i};
                 $score_prob += $sanger_prob{$i};
             }
             elsif ( $lib eq "illumina" ) {
-            	push @phred_array, $illumina_phred{$i};
                 push @prob_array, $illumina_prob{$i};
-                $score += $illumina_phred{$i};
                 $score_prob += $illumina_prob{$i};
             }
         }
-        my $mean_phred     = mean(@phred_array);
-        my $min_phred      = min @phred_array;
-        my $mean_prob      = mean(@prob_array);
+        my $error_prob = ((sprintf "%.10f", sum(@prob_array))*100)/length $seq; 
 
-       if ( ($mean_phred < $cuttoff) && ($min_phred > 8) && ($mean_prob < 0.5 )) {
+       if ( $error_prob > $cuttoff ) {
        	    return 0;
         }
         else {
