@@ -218,12 +218,12 @@ sub _de_plex {
     my @tagsArr;
     my @tagsArr2;
     while ( my $line = <$fh> ) {
-        if ( $line =~ m/:([AGCT][AGCT][AGTC][AGCT][AGCT][AGTC])$/ ) {
+        if ( $line =~ m/:([NAGCT][NAGCT][NAGTC][NAGCT][NAGCT][NAGTC])$/ ) {
             push( @tagsArr, $1 ) unless grep { $_ eq $1 } @tagsArr;
         }
     }
     while ( my $line2 = <$fh2> ) {
-        if ( $line2 =~ m/:([AGCT][AGCT][AGTC][AGCT][AGCT][AGTC])$/ ) {
+        if ( $line2 =~ m/:([NAGCT][NAGCT][NAGTC][NAGCT][NAGCT][NAGTC])$/ ) {
             push( @tagsArr2, $1 ) unless grep { $_ eq $1 } @tagsArr2;
         }
     }
