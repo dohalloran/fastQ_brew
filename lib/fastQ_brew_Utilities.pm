@@ -230,7 +230,7 @@ my %illumina_prob = (
 sub _prob_calc{
     my $seq      = $_[0];
     my $lib      = $_[1];
-    my $cuttoff  = $_[2]/100;
+    my $cuttoff  = $_[2];
     my $score_prob;
     my @prob_array;
 
