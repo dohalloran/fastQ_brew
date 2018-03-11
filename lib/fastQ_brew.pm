@@ -73,7 +73,7 @@ our $VERSION = '2.0';
   --i, input file (required)
   --x, input file2 only to check demultiplexing 
   --plex, checks that two FASTQ files were demultiplexed correctly
-  --o, output file (required)
+  --o, output file (default is filtered.fq)
   --lib, library type  (default is sanger)       
   --qf, max. probability for a read to contain errors: suggested p<=50% (must be 1-100)
   --lf, filter by read length (suggested default =25)
@@ -91,8 +91,8 @@ our $VERSION = '2.0';
 
 has 'i'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
 has 'x'         => ( is => 'rw', isa => 'Str',  required => 0 );
-has 'plex'      => ( is => 'rw', isa => 'Bool', default => 0 );
-has 'o'        	=> ( is => 'rw', isa => 'Str',  required => 1 );
+has 'plex'      => ( is => 'rw', isa => 'Bool', default  => 0 );
+has 'o'        	=> ( is => 'rw', isa => 'Str',  default  => "filtered.fq" );
 has 'lib'      	=> ( is => 'rw', isa => 'Str',  default  => "sanger" );
 has 'qf'       	=> ( is => 'rw', isa => 'Num',  default  => 0 );
 has 'lf'       	=> ( is => 'rw', isa => 'Int',  default  => 0 );
