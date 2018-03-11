@@ -344,7 +344,7 @@ sub run_fastQ_brew {
  Title   : _cleanup()
  Usage   : _cleanup(%arg);
  Function: delete tmp files
- Returns : nothing
+ Returns : summary stats
  Args    : %arg
 
 =cut
