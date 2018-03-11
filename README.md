@@ -42,8 +42,8 @@ $app->run_fastQ_brew();
 ## Command Line Arguments
 ### Filtering Options
  ```perl   
-#set the minimum probability that a fastQ [1] read will contain errors: suggested p<=50% (must be 1-100)
-        --qf 50
+#set the max probability that a fastQ [1] read will contain errors: suggested p<=100 (must be 1-100)
+        --qf 100
 #filter by read length - reads below this length will be removed       
         --lf 35
 #remove x bases from left end of every read 
