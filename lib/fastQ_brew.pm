@@ -59,7 +59,6 @@ use if ( $^O eq 'MSWin32' ), 'Win32::Console::ANSI';
 use Term::ANSIColor qw(:constants);
 use List::MoreUtils qw(any first_index);
 use Sys::Hostname;
-use POSIX qw/floor/;
 use autodie;
 
 ##################################
@@ -76,7 +75,7 @@ our $VERSION = '2.0';
   --plex, checks that two FASTQ files were demultiplexed correctly
   --o, output file (required)
   --lib, library type  (default is sanger)       
-  --qf, max. probability that a read will contain errors: suggested p=100 (must be 1-100)
+  --qf, min. probability for a read to contain 0 errors: suggested p>=50% (must be 1-100)
   --lf, filter by read length (suggested default =25)
   --trim_l, trim reads starting at left end
   --trim_r, trim reads starting at left end
@@ -371,7 +370,7 @@ sub _cleanup {
         print "\nReads removed:\t\t"
           . ( ( $self->{original_reads} ) - ($outCount) );
         print "\nPercent removed:\t"
-          . floor(((( ( $self->{original_reads} ) - ($outCount) ))/$self->{original_reads})*100)."%";
+          . (sprintf "%.6f", (((( ( $self->{original_reads} ) - ($outCount) ))/$self->{original_reads})*100))."%";
     }
     my $duration = time - $self->{start};
     print "\nExecution time:\t\t" . $duration . "secs\n\n", RESET;
