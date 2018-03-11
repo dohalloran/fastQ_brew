@@ -61,7 +61,6 @@ $app->run_fastQ_brew();
         --plex
         -i <input_file1>
         -x <input_file2>
-        -o <output_file>
 #convert FASTQ file to FASTA format file
         --fasta
 #convert the DNA for each read to RNA 
@@ -74,8 +73,8 @@ $app->run_fastQ_brew();
  ```perl   
 #input FASTQ file (required) 
         --i reads.fastq
-#output FASTQ file (required) 
-        --o filtered.fq
+#output FASTQ file (by default called filtered.fq) 
+        --o filtered_reads.fq
 #library type i.e. sanger (default) or illumina 
         --lib sanger
 #print flag options to stdout
