@@ -72,9 +72,9 @@ $app->run_fastQ_brew();
 ### Odds and Ends
  ```perl   
 #input FASTQ file (required) 
-        --i reads.fastq
+        --i <input_file>
 #output FASTQ file (by default called filtered.fq) 
-        --o filtered_reads.fq
+        --o <output_file>
 #library type i.e. sanger (default) or illumina 
         --lib sanger
 #print flag options to stdout
