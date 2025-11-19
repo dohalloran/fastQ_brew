@@ -1,103 +1,240 @@
-# `fastQ_brew v.2.0`
+# fastQ_brew v2.1
 
 [![GitHub license](https://img.shields.io/badge/license-GPL_2.0-orange.svg)](https://raw.githubusercontent.com/dohalloran/fastQ_brew/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/dohalloran/fastQ_brew.svg)](https://github.com/dohalloran/fastQ_brew/issues)
 
-- [x] `Pre-processing of FASTQ reads`
-- [x] `Check that files were demultiplexed correctly`
-- [x] `Filter reads by length `
-- [x] `Filter reads by quality`
-- [x] `Trim reads`
-- [x] `Removes standard Truseq adapters`
-- [x] `Performs various file conversions` 
+**fastQ_brew** is a lightweight and flexible FASTQ pre-processing toolkit, written in Perl and designed to run on macOS and Linux without heavy or non-portable dependencies.
 
-![fastQ_brew LOGO](https://cloud.githubusercontent.com/assets/8477977/22077145/f29a177e-dd80-11e6-86a6-a211e8e1e103.jpg)
+It provides read filtering, trimming, adapter removal, format conversions, reverse-complementing, demultiplexing validation, and now **parallel chunk-based processing** for large FASTQ datasets.
 
-## Installation
-1. Download and extract the fastQ_brew.zip file  
-`tar -xzvf fastQ_brew.zip` 
-or 
-`git clone https://github.com/dohalloran/fastQ_brew.git`
-2. The extracted dir will be called fastQ_brew  
-```cmd  
-cd fastQ_brew   
-perl Makefile.PL  
-make  
-make test  
-make install  
+---
+
+## ⭐ Features
+
+- 🚀 **FASTQ preprocessing**: length filtering, quality filtering, trimming  
+- ✂️ **Adapter removal** (TruSeq, 1 mismatch allowed)  
+- 🧬 **Convert FASTQ → FASTA**  
+- 🔄 **Reverse complement reads**  
+- 🔁 **DNA→RNA conversion** (T/t → U/u)  
+- 🔍 **Demultiplexing validation** (`--plex`)  
+- ⚡ **Parallel mode for large FASTQs** (no XS modules required)  
+- 🧹 **Core-only Perl modules** (Moose + core utilities)
+
+---
+
+## 📦 1. Installation / Setup
+
+### **Option A — Run directly (recommended)**  
+No installation is required. Clone the repo:
+
+```bash
+git clone https://github.com/dohalloran/fastQ_brew.git
+cd fastQ_brew
+````
+
+Make the main scripts executable:
+
+```bash
+chmod +x fastQ_brew.pl fastQ_brew_parallel.pl
 ```
 
-## Usage 
-### To run:  
+Run:
+
+```bash
+./fastQ_brew.pl ...
+./fastQ_brew_parallel.pl ...
+```
+
+---
+
+### **Option B — Install as a Perl module (optional)**
+
+```bash
+perl Makefile.PL
+make
+make test
+make install
+```
+
+---
+
+## 📚 2. Requirements
+
+* Perl **5.10+**
+* Modules (minimal):
+
+  * `Moose`
+  * `Term::ANSIColor`
+  * all other modules are Perl core
+
+Install missing modules with:
+
+```bash
+cpanm Moose Term::ANSIColor
+```
+
+---
+
+## 🚀 3. Quick Start Examples
+
+### **3.1 Serial FASTQ processing**
+
+```bash
+perl fastQ_brew.pl \
+  --i input.fastq \
+  --o filtered.fastq \
+  --lib sanger \
+  --qf 50 \
+  --lf 25 \
+  --trim_l 5 \
+  --trim_r 3 \
+  --truseq
+```
+
+#### **Key Options**
+
+| Option                  | Meaning                                 |
+| ----------------------- | --------------------------------------- |
+| `--i`                   | Input FASTQ (required)                  |
+| `--o`                   | Output FASTQ (default: `filtered.fq`)   |
+| `--lib`                 | Quality encoding (`sanger`, `illumina`) |
+| `--qf`                  | Max percent error probability (1–100)   |
+| `--lf`                  | Minimum post-trim read length           |
+| `--trim_l` / `--trim_r` | Trim N bases from left / right          |
+| `--truseq`              | Remove TruSeq adapters                  |
+
+---
+
+### **3.2 Parallel processing**
+
+Use this for very large FASTQs (multi-GB).
+The wrapper:
+
+1. Splits the FASTQ into chunks
+2. Runs `fastQ_brew.pl` on each chunk in parallel
+3. Joins all output chunks into a final filtered FASTQ
+
+```bash
+perl fastQ_brew_parallel.pl \
+  --i big.fastq \
+  --o big.filtered.fastq \
+  --lib sanger \
+  --qf 50 \
+  --lf 25 \
+  --trim_l 5 \
+  --trim_r 3 \
+  --truseq \
+  --jobs 8 \
+  --reads_per_chunk 200000
+```
+
+#### Parallel Options
+
+| Option              | Meaning                                     |
+| ------------------- | ------------------------------------------- |
+| `--jobs`            | Number of worker processes                  |
+| `--reads_per_chunk` | FASTQ reads per chunk (each read = 4 lines) |
+
+> Parallel mode skips `--plex` because demux validation requires both full FASTQ files.
+
+---
+
+## 🧪 4. Full Command-Line Reference
+
+### **Filtering**
+
+```bash
+--qf 50        # Max % error probability (lower = stricter)
+--lf 25        # Minimum read length after trimming
+--trim_l 5     # Trim 5 bases from left
+--trim_r 3     # Trim 3 bases from right
+--truseq       # Remove TruSeq adapters (allows 1 mismatch)
+```
+
+---
+
+### **Conversion / Utility Options**
+
+```bash
+--fasta        # Write FASTA instead of FASTQ
+--dna_rna      # Convert T/t → U/u
+--rev_comp     # Reverse-complement sequences
+```
+
+---
+
+### **Demultiplexing Validation**
+
+```bash
+--plex \
+  --i sample1.fastq \
+  --x sample2.fastq
+```
+
+Reports matching and unique barcodes between two files.
+
+**Not supported in parallel mode.**
+
+---
+
+### **General Options**
+
+```bash
+--i <file>     # Input FASTQ (required)
+--o <file>     # Output FASTQ (default: filtered.fq)
+--lib sanger   # Quality encoding (default)
+--lib illumina # Alt quality encoding
+```
+
+---
+
+## 🧬 5. Using fastQ_brew Programmatically (Perl API)
+
 ```perl
+use strict;
+use warnings;
+
+use lib 'lib';
 use fastQ_brew;
-use Moose;
-use Modern::Perl;
-use autodie;
 
-my $app = fastQ_brew->new_with_options();
-$app->run_fastQ_brew(); 
-#see below for command flags
-``` 
-## Command Line Arguments
-### Filtering Options
- ```perl   
-#set the max probability that a fastQ [1] read will contain errors: suggested p<=50% (must be 1-100)
-        --qf 50
-#filter by read length - reads below this length will be removed       
-        --lf 35
-#remove x bases from left end of every read 
-        --trim_l 5
-#remove x bases from right end of every read
-        --trim_r 3
-#remove standard truseq adapters (permits 1 mismatch) from both ends (very slow!)
-        --truseq
+my $app = fastQ_brew->new(
+    i       => 'input.fastq',
+    o       => 'filtered.fastq',
+    lib     => 'sanger',
+    qf      => 50,
+    lf      => 25,
+    trim_l  => 5,
+    trim_r  => 3,
+    truseq  => 1,
+);
+
+$app->run_fastQ_brew();
 ```
 
-### File Conversions and de-multiplex check
- ```perl   
-#check that 2 FASTQ files were demultiplexed correctly 
-#fastQ_brew outputs the barcodes for each file and compares (union and intersection) between two files 
-        --plex
-        -i <input_file1>
-        -x <input_file2>
-#convert FASTQ file to FASTA format file
-        --fasta
-#convert the DNA for each read to RNA 
-        --dna_rna
-#reverse complement the FASTQ reads 
-        --rev_comp
-```
+---
 
-### Odds and Ends
- ```perl   
-#input FASTQ file (required) 
-        --i <input_file>
-#output FASTQ file (by default called filtered.fq) 
-        --o <output_file>
-#library type i.e. sanger (default) or illumina 
-        --lib sanger
-#print flag options to stdout
-        --help  
-```
+## 📄 6. References
 
-### References
-1. Cock PJ, Fields CJ, Goto N, Heuer ML, Rice PM. The Sanger FASTQ file format for sequences with quality scores, and the Solexa/Illumina FASTQ variants. Nucleic Acids Res. 2010;38(6):1767–71
+1. Cock PJ, et al. *The Sanger FASTQ file format…* NAR 2010.
+2. Ewing B & Green P. *Phred I & II accuracy models.* Genome Res 1998.
 
-2. Ewing B, Hillier L, Wendl MC, Green P. Base-calling of automated sequencer traces using phred. I. Accuracy assessment. Genome Res. 1998;8(3):175–85.
+---
 
-3. Ewing B, Green P. Base-calling of automated sequencer traces using phred. II. Error probabilities. Genome Res. 1998;8(3):186–94.
+## 🤝 7. Contributing
 
-## Contributing
-All contributions are welcome.
+Pull requests and issues are welcome:
 
-## Support
-If you have any problem or suggestion please open an issue [here](https://github.com/dohalloran/fastQ_brew/issues).
+👉 [https://github.com/dohalloran/fastQ_brew/issues](https://github.com/dohalloran/fastQ_brew/issues)
 
-## License 
-GNU GENERAL PUBLIC LICENSE
+---
 
+## 🛟 8. Support
 
+Open an issue on GitHub for help.
 
+---
 
+## 📜 9. License
+
+GNU General Public License v2.0 (GPL-2.0)
 
