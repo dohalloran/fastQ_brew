@@ -1,80 +1,28 @@
-#
-# File conversion module for fastQ_brew
-#
-# Please direct questions and support issues to <https://github.com/dohalloran/fastQ_brew/issues>
-#
-# Author: Damien O'Halloran, The George Washington University, 2017
-#
-# GNU GENERAL PUBLIC LICENSE
-#
-# POD documentation before the code
-
-=head1 NAME
-
-fastQ_brew_Conversions - file reformatting and demultiplex check for fastQ_brew
-
-=head2 SYNOPSIS
-
-  use Moose
-  use Modern::Perl
-  use List::Compare
-  use base 'Exporter'
-  use Term::ANSIColor qw(:constants)
-  use autodie
-
-=head2 DESCRIPTION
-
-This package provides subroutines for file conversion
-
-=head2 Support
-
-All contributions are welcome
-
-=head2 Reporting Bugs
-
-Report bugs to the fastQ_brew bug tracking system to help keep track
-of the bugs and their resolution. Bug reports can be submitted via the
-web:
-  https://github.com/dohalloran/fastQ_brew/issues
-
-=head1 APPENDIX
-
-The rest of the documentation details each of the object methods.
-
-=cut
-
 package fastQ_brew_Conversions;
 
+use strict;
+use warnings;
+use feature qw(say);
+
 use Moose;
-use Modern::Perl;
-use List::Compare;
 use base 'Exporter';
 use Term::ANSIColor qw(:constants);
 use autodie;
 
 our @EXPORT = qw/ _convert_fasta _rev_comp _dna_rna _de_plex /;
 
-##################################
-
-=head2 _convert_fasta()
-
- Title   : _convert_fasta()
- Usage   : _convert_fasta(%arg);
- Function: option to convert fastQ file to fastA
- Returns : fastA file
- Args    : %arg
-
-=cut
-
-##################################
+#----------------------#
+#  FASTQ -> FASTA      #
+#----------------------#
 
 sub _convert_fasta {
-    my $in_file = shift;
-    print BOLD CYAN, "\n\nConverting fastQ file to fastA...", RESET;
-    my $temp;
-    my @temp;
+    my $in_file = shift or die "No input file provided to _convert_fasta\n";
 
+    print BOLD CYAN, "\n\nConverting fastQ file to fastA...", RESET;
+
+    my @temp;
     my $fasta = "fastA_convert.fa";
+
     open my $fh, '<', $in_file
       or die "Cannot open $in_file: $!";
 
@@ -87,35 +35,26 @@ sub _convert_fasta {
         chomp( $temp[2] = <$fh> );
         chomp( $temp[3] = <$fh> );
 
-        # Print to fasta file.
         print $fh_out ">$temp[0]\n";
         print $fh_out "$temp[1]\n";
     }
     close $fh;
     close $fh_out;
 }
-##################################
 
-=head2 _reverse_comp()
-
- Title   : _reverse_comp()
- Usage   : $self->_reverse_comp(%arg)
- Function: option to rev comp fastQ reads
- Returns : reverse complemented fastQ file
- Args    : %arg
-
-=cut
-
-##################################
+#----------------------#
+#   Reverse complement #
+#----------------------#
 
 sub _rev_comp {
-    my $in_file = shift;
+    my $in_file = shift or die "No input file provided to _rev_comp\n";
+
     print BOLD CYAN, "\n\nReverse complementing fastQ reads...", RESET;
-    my $temp;
+
     my @temp;
     my $revComp;
-
     my $revcomp = "rev_comp.fastq";
+
     open my $fh, '<', $in_file
       or die "Cannot open $in_file: $!";
 
@@ -128,11 +67,9 @@ sub _rev_comp {
         chomp( $temp[2] = <$fh> );
         chomp( $temp[3] = <$fh> );
 
-        # rev comp the array element
         $temp[1] =~ tr/ATGCatgc/TACGtacg/;
         $revComp = reverse( $temp[1] );
 
-        # Print to revcomp file.
         print $fh_out "$temp[0]\n";
         print $fh_out "$revComp\n";
         print $fh_out "$temp[2]\n";
@@ -141,27 +78,19 @@ sub _rev_comp {
     close $fh;
     close $fh_out;
 }
-##################################
 
-=head2 _dna_rna()
-
- Title   : _dna_rna()
- Usage   : $self->_dna_rna(%arg)
- Function: option to convert dna to rna for fastQ reads
- Returns : RNA fastQ file
- Args    : %arg
-
-=cut
-
-##################################
+#----------------------#
+#   DNA -> RNA         #
+#----------------------#
 
 sub _dna_rna {
-    my $in_file = shift;
-    print BOLD CYAN, "\n\nTranscribing fastQ reads...", RESET;
-    my $temp;
-    my @temp;
+    my $in_file = shift or die "No input file provided to _dna_rna\n";
 
+    print BOLD CYAN, "\n\nTranscribing fastQ reads...", RESET;
+
+    my @temp;
     my $dna_to_rna = "dna_to_rna.fastq";
+
     open my $fh, '<', $in_file
       or die "Cannot open $in_file: $!";
 
@@ -174,10 +103,8 @@ sub _dna_rna {
         chomp( $temp[2] = <$fh> );
         chomp( $temp[3] = <$fh> );
 
-        # transcribe the array element
         $temp[1] =~ tr/Tt/Uu/;
 
-        # Print to RNA file.
         print $fh_out "$temp[0]\n";
         print $fh_out "$temp[1]\n";
         print $fh_out "$temp[2]\n";
@@ -186,28 +113,17 @@ sub _dna_rna {
     close $fh;
     close $fh_out;
 }
-####################################
 
-=head2 _de_plex()
-
- Title   : _de_plex()
- Usage   : $self->_de_plex(%arg)
- Function: option to check that two FASTQ files were de-multiplexed correctly
- Returns : list of union and intersection tags from each file
- Args    : %arg
-
-=cut
-
-##################################
+#----------------------#
+#   Demultiplex check  #
+#----------------------#
 
 sub _de_plex {
     my (@fileArray) = @_;
-    my $in_file     = $fileArray[0];
-    my $in_file2    = $fileArray[1];
-    print BOLD CYAN, "\n\nChecking fastQ files for proper demultiplexing...",
-      RESET;
-    my $temp;
-    my @temp;
+    my $in_file  = $fileArray[0] or die "No first input file provided to _de_plex\n";
+    my $in_file2 = $fileArray[1] or die "No second input file provided to _de_plex\n";
+
+    print BOLD CYAN, "\n\nChecking fastQ files for proper demultiplexing...", RESET;
 
     open my $fh, '<', $in_file
       or die "Cannot open $in_file: $!";
@@ -217,6 +133,7 @@ sub _de_plex {
 
     my @tagsArr;
     my @tagsArr2;
+
     while ( my $line = <$fh> ) {
         if ( $line =~ m/:([NAGCT][NAGCT][NAGTC][NAGCT][NAGCT][NAGTC])$/ ) {
             push( @tagsArr, $1 ) unless grep { $_ eq $1 } @tagsArr;
@@ -242,10 +159,17 @@ sub _de_plex {
         print BOLD CYAN, "\n\nList of tags from file2: " . "@tagsArr2\n", RESET;
     }
 
-    my $lc = List::Compare->new( \@tagsArr, \@tagsArr2 );
+    # simple intersection and union without List::Compare
+    my %seen1 = map { $_ => 1 } @tagsArr;
+    my %seen2 = map { $_ => 1 } @tagsArr2;
 
-    my @intersection = $lc->get_intersection;
-    my @union        = $lc->get_union;
+    my %union = (%seen1, %seen2);
+    my @union = sort keys %union;
+
+    my @intersection;
+    for my $tag (@union) {
+        push @intersection, $tag if $seen1{$tag} && $seen2{$tag};
+    }
 
     if ( scalar @intersection == 0 ) {
         print BOLD CYAN, "\nNo intersection found between files\n", RESET;
@@ -263,7 +187,5 @@ sub _de_plex {
     close $fh;
     close $fh2;
 }
-####################################
-####################################
 
 1;
